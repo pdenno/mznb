@@ -7,12 +7,13 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.rst'), encodin
 
 setup(
     name='mznb',
-    version='0.4',
-    description='IPython magic for cooperating witht he MiniZinc notebook agent',
+    version='0.1',
+    description='IPython magic for cooperating with the MiniZinc nb-agent',
     long_description=long_description,
     author='Peter Denno',
     author_email='podenno@gmail.com',
-    packages=['mznb'],
+#    packages=['mznb'],
+#    package_dir={'': 'lib'},  # This is what it is complaining about. 
     install_requires=['ipython'],
     include_package_data=True,
     classifiers=[
