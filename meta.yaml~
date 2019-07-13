@@ -1,0 +1,27 @@
+package:
+    name: mznb
+    version: 1.0
+
+source:
+    git_url: https://github.com/pdenno/mznb
+
+build:
+    number: 0
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python
+
+test:
+    imports:
+
+
+    commands:
+
+about:
+    home: http://github.com/pdenno/mznb/
+    license: 
+
