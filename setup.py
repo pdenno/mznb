@@ -1,44 +1,47 @@
+import io
+import re
 from setuptools import setup
-from codecs import open
-from os import path
 
-with open(path.join(path.abspath(path.dirname(__file__)), 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+with io.open("README.rst", "rt", encoding="utf8") as f:
+    readme = f.read()
+
+with io.open("mznb/__init__.py", "rt", encoding="utf8") as f:
+    version = re.search(r"__version__ = \'(.*?)\'", f.read()).group(1)
+
 
 setup(
-    name='mznb',
-    version='0.1',
-    description='IPython magic for cooperating with the MiniZinc nb-agent',
-    long_description=long_description,
-    author='Peter Denno',
-    author_email='podenno@gmail.com',
-#    packages=['mznb'],
-#    package_dir={'': 'lib'},  # This is what it is complaining about. 
-    install_requires=['ipython'],
-    include_package_data=True,
-    classifiers=[
-        'Development Status :: 4 - Beta',
-
-        'Intended Audience :: Developers',
-        'Intended Audience :: Education',
-        'Intended Audience :: Science/Research',
-        
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Scientific/Engineering :: Mathematics',
-        
-        'License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)',
-        'Operating System :: OS Independent',
-        
-        # Specify the Python versions you support here. In particular, ensure
-        # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-    ],
-    keywords = 'minizinc jupyter notebook notebook-agent',
+    name="mznb-pdenno",
+    version=version,
+    url="https://github.com/pdenno/mznb/",
     project_urls={
-        'Source':  'https://github.com/pdenno/mznb/',
-        'Tracker': 'https://github.com/pdenno/mznb/issues',
+        "Documentation": "https://github.com/pdenno/mznb/",
+        "Code": "https://github.com/pdenno/mznb/",
+        "Issue tracker": "https://github.com/pdenno/mznb/issues",
     },
+    license="BSD",
+    author="Peter Denno",
+    author_email="podenno@gmail.com",
+    maintainer="Peter Denno",
+    maintainer_email="podenno@gmail.com",
+    description="Magic to communicate between Jupyter notebooks and MiniZinc nb-agent",
+    long_description=readme,
+    packages=["mznb"],
+    include_package_data=True,
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ],
 )
+    
+
