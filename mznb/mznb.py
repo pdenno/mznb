@@ -8,22 +8,28 @@ import time
 import zmq
 
 # The class MUST call this class decorator at creation time
+# TODO: This needs to send notebook-id too. 
 @magics_class
 class MznbMagics(Magics):
 
-    def __init__(self, shell, data):
+    def __init__(self, shell, port):
         # You must call the parent constructor
         super(MznbMagics, self).__init__(shell)
-        self.data = data    
+        self.port = port
 
     @line_cell_magic
     def run_mzn(self, line, cell=None):
         ctx = zmq.Context()
-        req = ctx.socket(zmq.REQ)
-        req.connect('tcp://localhost:3178')
+        sock = ctx.socket(zmq.REQ)
+        sock.connect('tcp://localhost:' + str(self.port))
         tic = time.time()
-        request = "%%run_mzn " + line + cell
-        req.send_string(request)
-        resp = req.recv()
-        print("%s: %.2f ms" % (resp, 1000*(time.time()-tic)))
+        try:
+            nb_id = self.shell.user_ns['notebook_id']['short_name']
+            line_plus = line + ' --short-name ' + nb_id
+            request = "%%run_mzn " + line_plus + '\n' + cell
+            sock.send_string(request)
+            resp =  sock.recv()
+            print("%s %s: %.2f ms" % (self.port, resp, 1000*(time.time()-tic)))
+        except KeyError:
+            print('''Please specify "notebook_id = {'short_name' : <whatever you'd like>}', prior to running this cell.''')
 
