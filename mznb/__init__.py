@@ -2,7 +2,9 @@ from __future__ import absolute_import
 from .mznb import MznbMagics
 import json
 from pathlib import Path
-
+import os
+import zmq
+import json
 
 def load_ipython_extension(ipython):
     """
@@ -17,7 +19,22 @@ def load_ipython_extension(ipython):
         data = json.load(json_file)
         port = data['magic-server-port']
 
-    print('MiniZinc Notebook Agent Communicator version', __version__, 'connected at', port)
+    ctx = zmq.Context()
+    sock = ctx.socket(zmq.REQ)
+    sock.connect('tcp://localhost:' + str(port))
+    try:
+        short_name = ipython.user_ns['notebook_id']
+        msg = {'action' : 'notify',
+               'dir' : os.getcwd(),
+               'short-name' : short_name}
+        msg_str = json.dumps(msg)
+        sock.send_string(msg_str)
+        print('MiniZinc Notebook Agent Communicator version', __version__, 'connected at', str(port))
+        sock.close()
+        ctx.term() # https://github.com/zeromq/pyzmq/issues/831
+    except KeyError:
+        print('''Not able to communicate with nb-agent.''')
+                         
     magics = MznbMagics(ipython, port) 
     ipython.register_magics(magics)
 

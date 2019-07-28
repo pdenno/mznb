@@ -6,6 +6,7 @@ from IPython.core.magic import (Magics, magics_class, line_magic,
                                 cell_magic, line_cell_magic)
 import time
 import zmq
+import json
 
 # The class MUST call this class decorator at creation time
 # TODO: This needs to send notebook-id too. 
@@ -16,7 +17,7 @@ class MznbMagics(Magics):
         # You must call the parent constructor
         super(MznbMagics, self).__init__(shell)
         self.port = port
-
+        
     @line_cell_magic
     def run_mzn(self, line, cell=None):
         ctx = zmq.Context()
@@ -24,10 +25,13 @@ class MznbMagics(Magics):
         sock.connect('tcp://localhost:' + str(self.port))
         tic = time.time()
         try:
-            nb_id = self.shell.user_ns['notebook_id']['short_name']
+            nb_id = self.shell.user_ns['notebook_id']
             line_plus = line + ' --short-name ' + nb_id
-            request = "%%run_mzn " + line_plus + '\n' + cell
-            sock.send_string(request)
+            request = {'action' : 'execute',
+                       'cmd-line' : line_plus,
+                       'body' : cell}
+            request_str = json.dumps(request)
+            sock.send_string(request_str)
             resp =  sock.recv()
             print("%s %s: %.2f ms" % (self.port, resp, 1000*(time.time()-tic)))
         except KeyError:
