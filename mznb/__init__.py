@@ -54,7 +54,7 @@ def load_ipython_extension(ipython):
                'short-name' : short_name}
         msg_str = json.dumps(msg)
         sock.send_string(msg_str)
-        print('MiniZinc Notebook Agent Communicator version ', __version__ , ' connected to nb-agent at port' , str(port))
+        print('MiniZinc Notebook Agent Communicator version', __version__ , 'connected to nb-agent at port' , str(port))
         sock.close()
         ctx.term() # https://github.com/zeromq/pyzmq/issues/831
     except KeyError:
