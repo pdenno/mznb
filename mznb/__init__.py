@@ -4,11 +4,11 @@ import json
 from pathlib import Path
 import os
 import zmq
-import json
 from ipykernel import get_connection_file
 
 import urllib.request
 from notebook import notebookapp
+
 
 def load_ipython_extension(ipython):
     """
@@ -24,7 +24,7 @@ def load_ipython_extension(ipython):
     connection_file = os.path.basename(connection_file_path)
     kernel_id = connection_file.split('-', 1)[1].split('.')[0]
 
-    filename = 'unknown'
+    ipynb_filename = 'unknown'
     last_active = 'unknown'
     servers = list(notebookapp.list_running_servers())
     for svr in servers:
@@ -35,7 +35,7 @@ def load_ipython_extension(ipython):
                 ipynb_filename = (sess['notebook']['path'])
                 last_active = (sess['kernel']['last_activity'])
                 break
-    
+
     config_file = str(Path.home()) + "/.local/share/nb-agent/runtime.json"
     with open(config_file) as json_file:
         data = json.load(json_file)
@@ -46,21 +46,23 @@ def load_ipython_extension(ipython):
     sock.connect('tcp://localhost:' + str(port))
     try:
         short_name = ipython.user_ns['notebook_id']
-        msg = {'action' : 'notify',
-               'dir' : os.getcwd(),
-               'ipynb-file' : ipynb_filename,
-               'last-active' : last_active, 
-               'connection-file' : connection_file_path,
-               'short-name' : short_name}
+        msg = {'action': 'notify',
+               'dir': os.getcwd(),
+               'ipynb-file': ipynb_filename,
+               'last-active': last_active,
+               'connection-file': connection_file_path,
+               'short-name': short_name}
         msg_str = json.dumps(msg)
         sock.send_string(msg_str)
-        print('MiniZinc Notebook Agent Communicator version', __version__ , 'connected to nb-agent at port' , str(port))
+        print('MiniZinc Notebook Agent Communicator version', __version__,
+              'connected to nb-agent at port', str(port))
         sock.close()
-        ctx.term() # https://github.com/zeromq/pyzmq/issues/831
+        ctx.term()  # https://github.com/zeromq/pyzmq/issues/831
     except KeyError:
         print('''Not able to communicate with nb-agent.''')
-                         
-    magics = MznbMagics(ipython, port) 
+
+    magics = MznbMagics(ipython, port)
     ipython.register_magics(magics)
 
-__version__ = '0.1.dev'    
+
+__version__ = '0.1.dev'

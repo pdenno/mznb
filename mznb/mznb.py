@@ -9,7 +9,7 @@ import zmq
 import json
 
 # The class MUST call this class decorator at creation time
-# TODO: This needs to send notebook-id too. 
+# TODO: This needs to send notebook-id too.
 @magics_class
 class MznbMagics(Magics):
 
@@ -17,7 +17,7 @@ class MznbMagics(Magics):
         # You must call the parent constructor
         super(MznbMagics, self).__init__(shell)
         self.port = port
-        
+
     @line_cell_magic
     def run_mzn(self, line, cell=None):
         ctx = zmq.Context()
@@ -27,13 +27,12 @@ class MznbMagics(Magics):
         try:
             nb_id = self.shell.user_ns['notebook_id']
             line_plus = line + ' --short-name ' + nb_id
-            request = {'action' : 'execute',
-                       'cmd-line' : line_plus,
-                       'body' : cell}
+            request = {'action': 'execute',
+                       'cmd-line': line_plus,
+                       'body': cell}
             request_str = json.dumps(request)
             sock.send_string(request_str)
-            resp =  sock.recv()
+            resp = json.loads(sock.recv())
             print("%s %s: %.2f ms" % (self.port, resp, 1000*(time.time()-tic)))
         except KeyError:
             print('''Please specify "notebook_id = {'short_name' : <whatever you'd like>}', prior to running this cell.''')
-
