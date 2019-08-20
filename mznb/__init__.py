@@ -32,6 +32,7 @@ def load_ipython_extension(ipython):
         sessions = json.loads(response.read().decode())
         for sess in sessions:
             if sess['kernel']['id'] == kernel_id:
+                session_id = sess['id']
                 ipynb_filename = (sess['notebook']['path'])
                 last_active = (sess['kernel']['last_activity'])
                 break
@@ -50,14 +51,15 @@ def load_ipython_extension(ipython):
                'dir': os.getcwd(),
                'ipynb-file': ipynb_filename,
                'last-active': last_active,
+               'session-id': session_id,
                'connection-file': connection_file_path,
                'short-name': short_name}
         msg_str = json.dumps(msg)
         sock.send_string(msg_str)
         print('MiniZinc Notebook Agent Communicator version', __version__,
               'connected to nb-agent at port', str(port))
-        sock.close()
-        ctx.term()  # https://github.com/zeromq/pyzmq/issues/831
+#        sock.close()
+#        ctx.term()  # https://github.com/zeromq/pyzmq/issues/831
     except KeyError:
         print('''Not able to communicate with nb-agent.''')
 
@@ -65,4 +67,4 @@ def load_ipython_extension(ipython):
     ipython.register_magics(magics)
 
 
-__version__ = '0.1.dev'
+__version__ = '0.1.dev-no-close'
