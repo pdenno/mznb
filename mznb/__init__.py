@@ -46,25 +46,22 @@ def load_ipython_extension(ipython):
     sock = ctx.socket(zmq.REQ)
     sock.connect('tcp://localhost:' + str(port))
     try:
-        short_name = ipython.user_ns['notebook_id']
         msg = {'action': 'notify',
                'dir': os.getcwd(),
                'ipynb-file': ipynb_filename,
                'last-active': last_active,
-               'session-id': session_id,
-               'connection-file': connection_file_path,
-               'short-name': short_name}
+               'session-id': session_id}
         msg_str = json.dumps(msg)
         sock.send_string(msg_str)
         print('MiniZinc Notebook Agent Communicator version', __version__,
-              'connected to nb-agent at port', str(port))
+              'connected to', session_id, 'at port', str(port))
 #        sock.close()
 #        ctx.term()  # https://github.com/zeromq/pyzmq/issues/831
     except KeyError:
         print('''Not able to communicate with nb-agent.''')
 
-    magics = MznbMagics(ipython, port)
+    magics = MznbMagics(ipython, port, session_id)
     ipython.register_magics(magics)
 
 
-__version__ = '0.1.dev-no-close'
+__version__ = '0.1.dev'

@@ -13,10 +13,11 @@ import json
 @magics_class
 class MznbMagics(Magics):
 
-    def __init__(self, shell, port):
+    def __init__(self, shell, port, session_id):
         # You must call the parent constructor
         super(MznbMagics, self).__init__(shell)
         self.port = port
+        self.session_id = session_id
 
     @line_cell_magic
     def run_mzn(self, line, cell=None):
@@ -25,14 +26,15 @@ class MznbMagics(Magics):
         sock.connect('tcp://localhost:' + str(self.port))
         tic = time.time()
         try:
-            nb_id = self.shell.user_ns['notebook_id']
-            line_plus = line + ' --short-name ' + nb_id
-            request = {'action': 'execute',
-                       'cmd-line': line_plus,
+            # nb_id = self.shell.user_ns['notebook_id']
+            request = {'action': 'show',  # execute or show (for debugging)
+                       'session-id': self.session_id,
+                       'cmd-line': line,
                        'body': cell}
             request_str = json.dumps(request)
             sock.send_string(request_str)
             resp = json.loads(sock.recv())
             print("%s %s: %.2f ms" % (self.port, resp, 1000*(time.time()-tic)))
         except KeyError:
-            print('''Please specify "notebook_id = {'short_name' : <whatever you'd like>}', prior to running this cell.''')
+
+            print('''Please specify notebook_id = 'some-string-like-this', prior to running this cell.''')
