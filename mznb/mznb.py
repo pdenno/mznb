@@ -7,6 +7,7 @@ from IPython.core.magic import (Magics, magics_class, line_magic,
 import time
 import zmq
 import json
+import os
 
 # The class MUST call this class decorator at creation time
 # TODO: This needs to send notebook-id too.
@@ -25,16 +26,12 @@ class MznbMagics(Magics):
         sock = ctx.socket(zmq.REQ)
         sock.connect('tcp://localhost:' + str(self.port))
         tic = time.time()
-        try:
-            # nb_id = self.shell.user_ns['notebook_id']
-            request = {'action': 'show',  # execute or show (for debugging)
-                       'session-id': self.session_id,
-                       'cmd-line': line,
-                       'body': cell}
-            request_str = json.dumps(request)
-            sock.send_string(request_str)
-            resp = json.loads(sock.recv())
-            print("%s %s: %.2f ms" % (self.port, resp, 1000*(time.time()-tic)))
-        except KeyError:
-
-            print('''Please specify notebook_id = 'some-string-like-this', prior to running this cell.''')
+        request = {'action': 'execute',  # execute or show (for debugging)
+                   'session-id': self.session_id,
+                   'dir': os.getcwd(),
+                   'cmd-line': line,
+                   'body': cell}
+        request_str = json.dumps(request)
+        sock.send_string(request_str)
+        resp = json.loads(sock.recv())
+        print("Response (%.2f sec): %s " % ((time.time()-tic), resp))
