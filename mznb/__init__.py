@@ -8,7 +8,7 @@ from ipykernel import get_connection_file
 
 import urllib.request
 from notebook import notebookapp
-
+# This gets updated occassionally
 
 def load_ipython_extension(ipython):
     """
