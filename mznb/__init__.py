@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+import sys
 from .mznb import MznbMagics
 import json
 from pathlib import Path
@@ -23,6 +24,9 @@ def load_ipython_extension(ipython):
     connection_file_path = get_connection_file()
     connection_file = os.path.basename(connection_file_path)
     kernel_id = connection_file.split('-', 1)[1].split('.')[0]
+    config_files = {'linux':  "/.local/share/nb-agent/runtime.json",
+                    'darwin': "/Library/nb-agent/runtime.json",
+                    'windows': "/.local/share/nb-agent/runtime.json"} # I am guessing!
 
     ipynb_filename = 'unknown'
     last_active = 'unknown'
@@ -37,7 +41,7 @@ def load_ipython_extension(ipython):
                 last_active = (sess['kernel']['last_activity'])
                 break
 
-    config_file = str(Path.home()) + "/.local/share/nb-agent/runtime.json"
+    config_file = str(Path.home()) + config_files[sys.platform]
     with open(config_file) as json_file:
         data = json.load(json_file)
         port = data['magic-server-port']
@@ -64,4 +68,4 @@ def load_ipython_extension(ipython):
     ipython.register_magics(magics)
 
 
-__version__ = '0.1.dev'
+__version__ = '0.2.dev'
