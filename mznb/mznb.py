@@ -9,6 +9,7 @@ import zmq
 import json
 import os
 import uuid
+import asyncio
 
 # The class MUST call this class decorator at creation time
 @magics_class
@@ -24,6 +25,28 @@ class MznbMagics(Magics):
         self.trans_id = None
         self.sock = None # We thread this thru the different magic functions.
 
+    async def listen(self):
+        print('Awaiting result on port', self.port)
+        self.keep_running = True
+        while self.keep_running:
+            await asyncio.sleep(0.6)
+            try:
+                msg = self.sock.recv(flags=zmq.NOBLOCK) # await here doesn't work
+                msg = json.loads(msg)
+            except zmq.ZMQError as e:
+                msg = False
+            if msg:
+                print(json.loads(msg)
+                self.keep_running = False
+
+    async def start_listening(self):
+        task = asyncio.create_task(self.listen())
+        await task
+
+    def start_listener(self):
+        loop = asyncio.get_running_loop()
+        loop.create_task(self.start_listening())
+
     @line_cell_magic
     def run_mzn(self, line, cell=None, body=None):
         self.sock = self.context.socket(zmq.REQ)
@@ -33,7 +56,8 @@ class MznbMagics(Magics):
                    'cmd-line': line,
                    'body': cell}
         self.sock.send_string(json.dumps(request))
-        print(json.loads(self.sock.recv()))   # Block!
+        start_listener(self)
+
 
 
 
