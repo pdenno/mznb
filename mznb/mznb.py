@@ -24,11 +24,11 @@ class MznbMagics(Magics):
         self.session_id = session_id
         self.trans_id = None
         self.sock = None # We thread this thru the different magic functions.
+        self.still_waiting = True
 
     async def listen(self):
-        print('Awaiting result on port', self.port)
-        self.keep_running = True
-        while self.keep_running:
+        print('Awaiting result.')
+        while self.still_waiting:
             await asyncio.sleep(0.6)
             try:
                 msg = self.sock.recv(flags=zmq.NOBLOCK) # await here doesn't work
@@ -36,8 +36,8 @@ class MznbMagics(Magics):
             except zmq.ZMQError as e:
                 msg = False
             if msg:
-                print(json.loads(msg)
-                self.keep_running = False
+                print(msg)
+                self.still_waiting = False
 
     async def start_listening(self):
         task = asyncio.create_task(self.listen())
@@ -56,7 +56,8 @@ class MznbMagics(Magics):
                    'cmd-line': line,
                    'body': cell}
         self.sock.send_string(json.dumps(request))
-        start_listener(self)
+        self.start_listener()
+
 
 
 
