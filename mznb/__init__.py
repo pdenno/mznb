@@ -29,11 +29,18 @@ def load_ipython_extension(ipython):
                     'darwin': "/Library/nb-agent/runtime.json",
                     'windows': "/.local/share/nb-agent/runtime.json"} # I am guessing!
 
+    config_file = str(Path.home()) + config_files[sys.platform]
+    with open(config_file) as json_file:
+        data = json.load(json_file)
+        port = data['magic-server-port']
+        jupyter_port = data['jupyter-port']
+
     ipynb_filename = 'unknown'
     last_active = 'unknown'
     servers = list(notebookapp.list_running_servers())
+    prefix = 'http://127.0.0.1:%s/api/sessions?token=' % (jupyter_port,)
     for svr in servers:
-        response = urllib.request.urlopen('http://127.0.0.1:8888/api/sessions?token=' + svr['token'])
+        response = urllib.request.urlopen(prefix + svr['token'])
         sessions = json.loads(response.read().decode())
         for sess in sessions:
             if sess['kernel']['id'] == kernel_id:
@@ -41,11 +48,6 @@ def load_ipython_extension(ipython):
                 ipynb_filename = (sess['notebook']['path'])
                 last_active = (sess['kernel']['last_activity'])
                 break
-
-    config_file = str(Path.home()) + config_files[sys.platform]
-    with open(config_file) as json_file:
-        data = json.load(json_file)
-        port = data['magic-server-port']
 
     gw = nba_gateway.NBAgateway()
     gw.start_server()
@@ -73,4 +75,4 @@ def load_ipython_extension(ipython):
     magics = MznbMagics(ipython, port, session_id)
     ipython.register_magics(magics)
 
-__version__ = '0.2.dev'
+__version__ = '0.2.0'
