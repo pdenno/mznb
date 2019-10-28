@@ -49,6 +49,7 @@ class MznbMagics(Magics):
 
     @line_cell_magic
     def run_mzn(self, line, cell=None, body=None):
+        self.still_waiting = True
         self.sock = self.context.socket(zmq.REQ)
         self.sock.connect(self.endpoint)
         request = {'action': 'execute', 
