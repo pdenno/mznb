@@ -53,7 +53,7 @@ class MznbMagics(Magics):
                    'cmd-line': line,
                    'body': cell}
         self.sock.send_string(json.dumps(request))
-        print('Sent!')
+        print('Sent to Notebook Agent for a MiniZinc solution.')
 
 
 
