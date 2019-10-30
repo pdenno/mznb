@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import zmq
 from ipykernel import get_connection_file
-import nba_gateway
+from nba_gateway import NBAgateway
 
 import urllib.request
 from notebook import notebookapp
@@ -49,9 +49,9 @@ def load_ipython_extension(ipython):
                 last_active = (sess['kernel']['last_activity'])
                 break
 
-    gw = nba_gateway.NBAgateway()
+    gw = NBAgateway()
     gw.start_server()
-    ipython.push({'nba_gateway': gw})
+    ipython.push({'nba_gateway': gw}) # Not sure that this is needed!
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
@@ -75,4 +75,4 @@ def load_ipython_extension(ipython):
     magics = MznbMagics(ipython, port, session_id)
     ipython.register_magics(magics)
 
-__version__ = '0.2.0'
+__version__ = '0.2.2'

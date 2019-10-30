@@ -4,7 +4,6 @@
 from __future__ import print_function
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 cell_magic, line_cell_magic)
-import time
 import zmq
 import json
 import os
@@ -25,6 +24,7 @@ class MznbMagics(Magics):
         self.trans_id = None
         self.sock = None # We thread this thru the different magic functions.
         self.still_waiting = True
+        shell.push({'mznb_magic': self})
 
     async def listen(self):
         print('Awaiting result.')
@@ -43,12 +43,8 @@ class MznbMagics(Magics):
         task = asyncio.create_task(self.listen())
         await task
 
-    def start_listener(self):
-        loop = asyncio.get_running_loop()
-        loop.create_task(self.start_listening())
-
-    @line_cell_magic
-    def run_mzn(self, line, cell=None, body=None):
+    @cell_magic
+    def run_mzn(self, line, cell=None):
         self.still_waiting = True
         self.sock = self.context.socket(zmq.REQ)
         self.sock.connect(self.endpoint)
@@ -57,7 +53,8 @@ class MznbMagics(Magics):
                    'cmd-line': line,
                    'body': cell}
         self.sock.send_string(json.dumps(request))
-        self.start_listener()
+        print('Sent!')
+
 
 
 
