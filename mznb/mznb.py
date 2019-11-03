@@ -5,9 +5,8 @@ from __future__ import print_function
 from IPython.core.magic import (Magics, magics_class, line_magic,
                                 cell_magic, line_cell_magic)
 import zmq
+import zmq.asyncio
 import json
-import os
-import uuid
 import asyncio
 
 # The class MUST call this class decorator at creation time
@@ -19,7 +18,7 @@ class MznbMagics(Magics):
         super(MznbMagics, self).__init__(shell)
         self.port = port
         self.endpoint = 'tcp://localhost:' + str(self.port)
-        self.context = zmq.Context()
+        self.context = zmq.asyncio.Context()
         self.session_id = session_id
         self.trans_id = None
         self.sock = None  # We thread this thru the different magic functions.
@@ -29,9 +28,8 @@ class MznbMagics(Magics):
     async def listen(self):
         print('Awaiting result.')
         while self.still_waiting:
-            await asyncio.sleep(0.6)
             try:
-                msg = self.sock.recv(flags=zmq.NOBLOCK)  # await here does not work
+                msg = await self.sock.recv()
                 msg = json.loads(msg)
             except zmq.ZMQError:
                 msg = False

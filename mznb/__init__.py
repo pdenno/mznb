@@ -18,7 +18,7 @@ def load_ipython_extension(ipython):
     can be loaded via `%load_ext module.path` or be configured to be
     autoloaded by IPython at startup time.
     """
-    # You can register the class itself without instantiating it.  
+    # You can register the class itself without instantiating it.
     # IPython will call the default constructor on it.
 
     # https://gist.github.com/mbdevpl/f97205b73610dd30254652e7817f99cb
@@ -51,7 +51,7 @@ def load_ipython_extension(ipython):
 
     gw = NBAgateway()
     gw.start_server()
-    ipython.push({'nba_gateway': gw}) # Not sure that this is needed!
+    ipython.push({'nba_gateway': gw})  # Not sure that this is needed!
 
     ctx = zmq.Context()
     sock = ctx.socket(zmq.REQ)
@@ -65,7 +65,8 @@ def load_ipython_extension(ipython):
                'last-active': last_active}
         msg_str = json.dumps(msg)
         sock.send_string(msg_str)
-        print('MiniZinc Notebook Agent Communicator version %s' % (__version__,))
+        print('MiniZinc Notebook Agent Communicator version %s'
+              % (__version__,))
         print('Connected to session %s at port %s.' % (session_id, port))
         print(json.loads(sock.recv()))
 
@@ -75,4 +76,5 @@ def load_ipython_extension(ipython):
     magics = MznbMagics(ipython, port, session_id)
     ipython.register_magics(magics)
 
-__version__ = '0.2.2'
+
+__version__ = '0.2.3'
