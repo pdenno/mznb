@@ -22,7 +22,7 @@ class MznbMagics(Magics):
         self.context = zmq.Context()
         self.session_id = session_id
         self.trans_id = None
-        self.sock = None # We thread this thru the different magic functions.
+        self.sock = None  # We thread this thru the different magic functions.
         self.still_waiting = True
         shell.push({'mznb_magic': self})
 
@@ -31,9 +31,9 @@ class MznbMagics(Magics):
         while self.still_waiting:
             await asyncio.sleep(0.6)
             try:
-                msg = self.sock.recv(flags=zmq.NOBLOCK) # await here doesn't work
+                msg = self.sock.recv(flags=zmq.NOBLOCK)  # await here does not work
                 msg = json.loads(msg)
-            except zmq.ZMQError as e:
+            except zmq.ZMQError:
                 msg = False
             if msg:
                 print(msg)
@@ -48,15 +48,9 @@ class MznbMagics(Magics):
         self.still_waiting = True
         self.sock = self.context.socket(zmq.REQ)
         self.sock.connect(self.endpoint)
-        request = {'action': 'execute', 
+        request = {'action': 'execute',
                    'session-id': self.session_id,
                    'cmd-line': line,
                    'body': cell}
         self.sock.send_string(json.dumps(request))
-        print('Sent to Notebook Agent for a MiniZinc solution.')
-
-
-
-
-
-
+        print('Cell sent to the Notebook Agent for a MiniZinc solution.')
