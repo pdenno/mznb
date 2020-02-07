@@ -8,6 +8,7 @@ import zmq
 import zmq.asyncio
 import json
 import asyncio
+import datetime as dt
 
 # The class MUST call this class decorator at creation time
 @magics_class
@@ -26,7 +27,7 @@ class MznbMagics(Magics):
         shell.push({'mznb_magic': self})
 
     async def listen(self):
-        print('Awaiting result.')
+        print('Awaiting result {0}'.format(dt.datetime.now()))
         while self.still_waiting:
             try:
                 msg = await self.sock.recv()
@@ -34,6 +35,7 @@ class MznbMagics(Magics):
             except zmq.ZMQError:
                 msg = False
             if msg:
+                print('Finished        {0}'.format(dt.datetime.now()))
                 print(msg)
                 self.still_waiting = False
 
