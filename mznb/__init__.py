@@ -7,10 +7,9 @@ import os
 import zmq
 from ipykernel import get_connection_file
 from nba_gateway import NBAgateway
+from jupyter_server import serverapp
 
 import urllib.request
-from notebook import notebookapp
-# This gets updated occassionally
 
 def load_ipython_extension(ipython):
     """
@@ -27,7 +26,7 @@ def load_ipython_extension(ipython):
     kernel_id = connection_file.split('-', 1)[1].split('.')[0]
     config_files = {'linux':  "/.local/share/nb-agent/runtime.json",
                     'darwin': "/Library/nb-agent/runtime.json",
-                    'windows': "/.local/share/nb-agent/runtime.json"} # I am guessing!
+                    'windows': "/.local/share/nb-agent/runtime.json"}  # I am guessing!
 
     config_file = str(Path.home()) + config_files[sys.platform]
     with open(config_file) as json_file:
@@ -37,7 +36,7 @@ def load_ipython_extension(ipython):
 
     ipynb_filename = 'unknown'
     last_active = 'unknown'
-    servers = list(notebookapp.list_running_servers())
+    servers = serverapp.list_running_servers()  # for 3.0.9 2021-03-04
     prefix = 'http://127.0.0.1:%s/api/sessions?token=' % (jupyter_port,)
     for svr in servers:
         response = urllib.request.urlopen(prefix + svr['token'])
@@ -67,7 +66,7 @@ def load_ipython_extension(ipython):
         sock.send_string(msg_str)
         print('MiniZinc Notebook Agent Communicator version %s'
               % (__version__,))
-        print('Connected to session %s at port %s.' % (session_id, port))
+        print('This session (%s) connected to nb-agent at port %s.' % (session_id, port))
         print(json.loads(sock.recv()))
 
     except KeyError:
@@ -77,4 +76,4 @@ def load_ipython_extension(ipython):
     ipython.register_magics(magics)
 
 
-__version__ = '0.2.4'
+__version__ = '0.2.8'

@@ -54,3 +54,14 @@ class MznbMagics(Magics):
                    'body': cell}
         self.sock.send_string(json.dumps(request))
         print('Cell sent to the Notebook Agent for a MiniZinc solution.')
+
+    @line_magic
+    def run_mzn_again(self, line, cell=None):
+        self.still_waiting = True
+        self.sock = self.context.socket(zmq.REQ)
+        self.sock.connect(self.endpoint)
+        request = {'action': 'execute_again',
+                   'session-id': self.session_id,
+                   'cmd-line': line}
+        self.sock.send_string(json.dumps(request))
+        print('Executing MiniZinc again using new data.')
